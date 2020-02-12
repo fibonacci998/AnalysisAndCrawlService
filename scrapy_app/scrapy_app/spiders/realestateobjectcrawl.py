@@ -3,10 +3,9 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
-
 class RealestateobjectcrawlSpider(CrawlSpider):
     name = 'realestateobjectcrawl'
-    start_urls = ['http://https://google.com/']
+    start_urls = ['https://batdongsan.com.vn/nha-dat-ban-ha-noi']
 
     def __init__(self, *args, **kwargs):
         self.url = kwargs.get('url')
@@ -14,28 +13,51 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         self.settingXpath = kwargs.get('xpath')
         
         self.start_urls = [self.url]
-        self.allowed_domains = [self.domain]
+        self.url = self.start_urls[0]
+        print("domain:" + self.domain)
+        print("url: "+self.url)
+        # self.allowed_domains = [self.domain]
 
-    def start_requests(self):
+    def start_request(self):
+        print("start request")
+        print("url here:" + self.url)
         yield scrapy.Request(self.url, self.parse)
 
     def parse(self, response):
-
-        scrapy.Request(response, callback=self.parse_item)
-
-        next_page_url = response.css(self.settingXpath['next_page_url']).extract()
-        if (next_page_url is not None):
-            yield scrapy.Request(response.urljoin(next_page_url))
+        print("start parse")
+        print("url here:"+response.url)
+        yield scrapy.Request(response.url, callback=self.crawlDataTotalPage)
+        # next_page_url = response.css(self.settingXpath['next_page_url']).extract()
+        # if (next_page_url is not None):
+        #     yield scrapy.Request(response.urljoin(next_page_url))
 
         # return super().parse(response)
 
-    def parse_item(self, response):
+    def crawlDataTotalPage(self, response):
+        print("start parse item")
         # one item is a post about real estate object
+        print(response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract())
         for linkEachItem in response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract():
-            # print(homepage+"/"+linkEachItem)
-            yield scrapy.Request(self.domain.urljoin(linkEachItem), callback=self.crawlDataRealEstate)
+            print("1:"+self.domain+"/"+linkEachItem)
+            # print("2:"+self.domain.urljoin(linkEachItem))
+            yield scrapy.Request("https://" + self.domain+"/"+linkEachItem, callback=self.crawlDataRealEstate)
+
+    def convertPriceToNumber(self, price):
+        priceConverted = price
+        if (len(price[0].split()) > 0):
+            if (price[0].split()[1] == u'tỷ'):
+                print(price[0].split()[0])
+                priceConverted = float(price[0].split()[0]) * 1000000000
+            elif (price[0].split()[1] == u'triệu'):
+                print(price)
+                print(price[0].split()[0])
+                priceConverted = float(price[0].split()[0]) * 1000000
+            else:
+                priceConverted = None
+        return [priceConverted]
 
     def crawlDataRealEstate(self, response):
+        print("start crawl data real estate")
         type = response.css('.div-hold > .table-detail .row:nth-child(1) .right::text').extract()
         address = response.css('.div-hold > .table-detail .row:nth-child(2) .right::text').extract()
 
@@ -48,7 +70,8 @@ class RealestateobjectcrawlSpider(CrawlSpider):
             numberToilets = numberToilets[0].split()[0]
 
         price = response.css('.mar-right-15 strong::text').extract()
-        area = response.css('.mar-right-15+ .gia-title strong::text').extract()[0].split('m')[0]
+        price = self.convertPriceToNumber(price)
+        area = [float(response.css('.mar-right-15+ .gia-title strong::text').extract()[0].split('m')[0].lstrip().rstrip())]
         longitude = response.css('#hdLong::attr(value)').extract()
         latitude = response.css('#hdLat::attr(value)').extract()
         nameOwner = response.css('#LeftMainContent__productDetail_contactName .right::text').extract()
@@ -77,7 +100,8 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         startDatePost = response.css('.prd-more-info div:nth-child(3)::text').extract()[-1]
         endDatePost = response.css('.prd-more-info div+ div::text').extract()[-1]
         typePost = response.css('.prd-more-info div+ div:nth-child(2)::text').extract()[-1]
-    
+
+        item={}
         item['type'] = type
         item['address'] = address
         item['numberBedrooms'] = numberBedrooms
@@ -104,4 +128,4 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         item['endDatePost'] = endDatePost
         item['typePost'] = typePost
 
-        return item
+        yield item

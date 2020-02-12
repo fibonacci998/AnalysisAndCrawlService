@@ -6,7 +6,7 @@ from .models import RealEstateObject,Employee
 from .serializers import GetAllRealEstateObjectSerializer,GetAllEmployeeSerializer
 from django.views.decorators.csrf import csrf_exempt
 from scrapyd_api import ScrapydAPI
-
+from django.http import JsonResponse
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from uuid import uuid4
@@ -36,7 +36,7 @@ class GetAllRealEstateObjectAPIView(APIView):
         # RealEstateObject.objects.create(title=, content=, price=)
         print("Go post")
         url = request.data.get('url', None) # take url comes from client. (From an input may be?)
-
+        typeSpider = request.data.get('type', None)
         if not url:
             return JsonResponse({'error': 'Missing  args'})
         
@@ -51,15 +51,24 @@ class GetAllRealEstateObjectAPIView(APIView):
         # I mean, anything
         settings = {
             'unique_id': unique_id, # unique ID for each record for DB
+            'type': typeSpider,
             'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         }
         print("creating crawler")
+
         # Here we schedule a new crawling task from scrapyd. 
         # Notice that settings is a special argument name. 
         # But we can pass other arguments, though.
         # This returns a ID which belongs and will be belong to this task
         # We are goint to use that to check task's status.
-        task = scrapyd.schedule('default', 'realestateobjectcrawl', 
-            settings=settings, url=url, domain=domain)
+
+        if (typeSpider == 'reo'):
+            print("creating reo")
+            task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+                settings=settings, url=url, domain=domain)
+        if (typeSpider == 'quote'):
+            print("creating quote")
+            task = scrapyd.schedule('default', 'toscrape-css', 
+                settings=settings, url=url, domain=domain)
         print("Created crawler")
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started' })
