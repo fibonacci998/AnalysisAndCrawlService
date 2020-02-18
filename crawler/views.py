@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import RealEstateObject,Employee
-from .serializers import GetAllRealEstateObjectSerializer,GetAllEmployeeSerializer
+from .models import RealEstateObject,Employee, Quote
+from .serializers import GetAllRealEstateObjectSerializer,GetAllEmployeeSerializer, GetQuoteSerializer
 from django.views.decorators.csrf import csrf_exempt
 from scrapyd_api import ScrapydAPI
 from django.http import JsonResponse
@@ -26,14 +26,19 @@ def is_valid_url(url):
 # @csrf_exempt
 class GetAllRealEstateObjectAPIView(APIView):
     def get(self, request):
-        list_reo = RealEstateObject.objects.all()
-        mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
+        unique_id = request.data.get('unique_id', None)
+        typeSpider = request.data.get('type', None)
+        if (typeSpider == 'reo'):
+            list_reo = RealEstateObject.objects.filter(idCrawlerJob = unique_id)
+            mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
 
-        list_emp = GetAllEmployeeSerializer(Employee.objects.all(), many = True)
+        if (typeSpider == 'quote'):
+            list_quote = Quote.objects.filter(unique_id = unique_id)
+            mydata = GetQuoteSerializer(list_quote, many = True)
+
         return Response(data = mydata.data, status = status.HTTP_200_OK)
     
     def post(self, request):
-        # RealEstateObject.objects.create(title=, content=, price=)
         print("Go post")
         url = request.data.get('url', None) # take url comes from client. (From an input may be?)
         typeSpider = request.data.get('type', None)
