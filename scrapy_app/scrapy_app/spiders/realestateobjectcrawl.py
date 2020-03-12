@@ -2,104 +2,114 @@
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-
+from datetime import datetime
+import json
+from string import Template
 class RealestateobjectcrawlSpider(CrawlSpider):
     name = 'realestateobjectcrawl'
-    start_urls = ['https://batdongsan.com.vn/nha-dat-ban-ha-noi']
+    page_number = 1
 
     def __init__(self, *args, **kwargs):
         self.url = kwargs.get('url')
         self.domain = kwargs.get('domain')
         self.settingXpath = kwargs.get('xpath')
-        
         self.start_urls = [self.url]
         self.url = self.start_urls[0]
-        print("domain:" + self.domain)
-        print("url: "+self.url)
-        # self.allowed_domains = [self.domain]
-
+        temp = kwargs.get('config')
+        self.config = json.loads(temp)
+        page_number = 1
     def start_request(self):
-        print("start request")
-        print("url here:" + self.url)
         yield scrapy.Request(self.url, self.parse)
 
     def parse(self, response):
-        print("start parse")
-        print("url here:"+response.url)
-        yield scrapy.Request(response.url, callback=self.crawlDataTotalPage)
-        # next_page_url = response.css(self.settingXpath['next_page_url']).extract()
-        # if (next_page_url is not None):
-        #     yield scrapy.Request(response.urljoin(next_page_url))
 
-        # return super().parse(response)
-
+        for i in range(self.config['pageconfig']['numberpage']):
+            
+            template = Template(self.config['pageconfig']['pageurltemplate'])
+            urlPage = template.substitute(page=str(self.page_number))
+            self.page_number += 1
+            yield scrapy.Request(urlPage, callback=self.crawlDataTotalPage)
+            
     def crawlDataTotalPage(self, response):
-        print("start parse item")
-        # one item is a post about real estate object
-        print(response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract())
         for linkEachItem in response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract():
-            print("1:"+self.domain+"/"+linkEachItem)
-            # print("2:"+self.domain.urljoin(linkEachItem))
             yield scrapy.Request("https://" + self.domain+"/"+linkEachItem, callback=self.crawlDataRealEstate)
 
     def convertPriceToNumber(self, price):
         priceConverted = price
         if (len(price[0].split()) > 0):
             if (price[0].split()[1] == u'tỷ'):
-                print(price[0].split()[0])
                 priceConverted = float(price[0].split()[0]) * 1000000000
             elif (price[0].split()[1] == u'triệu'):
-                print(price)
-                print(price[0].split()[0])
                 priceConverted = float(price[0].split()[0]) * 1000000
             else:
                 priceConverted = None
-        return [priceConverted]
+        return priceConverted
+
+    def getValue(self,arr):
+        if (len(arr)>0):
+            return arr[0]
+        return None
+
+    def getValue(self, response, css, wantFullText=False, position=0):
+        valueExtract = response.css(css).extract()
+        if (len(valueExtract) > 0):
+            if (wantFullText):
+                return valueExtract[position].rstrip().lstrip()
+            else:
+                return valueExtract[position].split()[0].rstrip().lstrip()
+        return None
 
     def crawlDataRealEstate(self, response):
-        print("start crawl data real estate")
-        type = response.css('.div-hold > .table-detail .row:nth-child(1) .right::text').extract()
-        address = response.css('.div-hold > .table-detail .row:nth-child(2) .right::text').extract()
+       
+        configPost = self.config['reoconfig']['cssselector']
+        
+        codePost = self.getValue(response, configPost['codePost'])
+        
+        type = self.getValue(response, configPost['type'], True)
 
-        numberBedrooms = response.css('#LeftMainContent__productDetail_roomNumber .right::text').extract()
-        if (len(numberBedrooms) > 0):
-            numberBedrooms = numberBedrooms[0].split()[0]
+        address = self.getValue(response, configPost['address'], True)
 
-        numberToilets = response.css('#LeftMainContent__productDetail_toilet .right::text').extract()
-        if (len(numberToilets) > 0):
-            numberToilets = numberToilets[0].split()[0]
+        numberBedrooms = self.getValue(response, configPost['numberBedrooms'])
 
-        price = response.css('.mar-right-15 strong::text').extract()
-        price = self.convertPriceToNumber(price)
-        area = [float(response.css('.mar-right-15+ .gia-title strong::text').extract()[0].split('m')[0].lstrip().rstrip())]
-        longitude = response.css('#hdLong::attr(value)').extract()
-        latitude = response.css('#hdLat::attr(value)').extract()
-        nameOwner = response.css('#LeftMainContent__productDetail_contactName .right::text').extract()
-        mobile = response.css('#LeftMainContent__productDetail_contactMobile .right::text').extract()
-        email = response.css('#contactEmail a::text').extract()
+        numberToilets = self.getValue(response, configPost['numberToilets'])
+    
+        price = response.css(configPost['price']['value']).extract()
+        if (configPost['price']['split-price'] == "true"):
+            price = self.convertPriceToNumber(price)
+        
+        area = self.getValue(response, configPost['area']['value'])
+        if (configPost['area']['split-m2'] == "true"):
+            try:
+                area = float(area.split('m')[0].replace(',','.'))
+            except:
+                area = None
+ 
+        longitude = self.getValue(response, configPost['longitude'])
+        if (longitude != None): longitude = float(longitude)
+        latitude = self.getValue(response, configPost['latitude'])
+        if (latitude != None): latitude = float(latitude)
+        nameOwner = self.getValue(response, configPost['nameOwner'],True)
+        mobile = self.getValue(response, configPost['mobile'], True)
+        email = self.getValue(response, configPost['email'], True)
+        sizeFront = self.getValue(response, configPost['sizeFront'])
+        if (sizeFront != None): sizeFront = float(sizeFront.replace(',','.'))
+        numberFloor = self.getValue(response, configPost['numberFloor'])
+        if (numberFloor != None): numberFloor = float(numberFloor.replace(',','.'))
+        wardin = self.getValue(response, configPost['wardin'])
+        if (wardin != None): wardin = float(wardin.replace(',','.'))
+        homeDirection = self.getValue(response, configPost['homeDirection'], True)
+        balconyDirection = self.getValue(response, configPost['balconyDirection'], True)
+        interior = self.getValue(response, configPost['interior'], True)
+        projectSize = self.getValue(response, configPost['projectSize'], True)
+        projectName = self.getValue(response, configPost['projectName'], True)
+        projectOwner = self.getValue(response, configPost['projectOwner'], True)
+        
+        dateTemp = self.getValue(response, configPost['startDatePost'],True, -1)
+        startDatePost = datetime.strptime(dateTemp,'%d-%m-%Y').date()
+        dateTemp = self.getValue(response, configPost['endDatePost'],True, -1)
+        endDatePost = datetime.strptime(dateTemp,'%d-%m-%Y').date()
+        typePost = self.getValue(response, configPost['typePost'], True, -1)
 
-        sizeFront = response.css('#LeftMainContent__productDetail_frontEnd .right::text').extract()
-        if (len(sizeFront) >0):
-            sizeFront = sizeFront[0].split()[0]
-
-        numberFloors = response.css('#LeftMainContent__productDetail_floor .right::text').extract()
-        if (len(numberFloors) > 0):
-            numberFloors = numberFloors[0].split()[0]
-
-        wardin = response.css('#LeftMainContent__productDetail_wardin .right::text').extract()
-        if (len(wardin) > 0):
-            wardin = wardin[0].split()[0]
-
-        homeDirection = response.css('#LeftMainContent__productDetail_direction .right::text').extract()
-        balconyDirection = response.css('#LeftMainContent__productDetail_balcony .right::text').extract()
-        interior = response.css('#LeftMainContent__productDetail_interior .right::text').extract()
-        projectSize = response.css('#LeftMainContent__productDetail_projectSize .right::text').extract()
-        projectName = response.css('#project .row:nth-child(1) .right::text').extract()
-        projectOwner = response.css('#LeftMainContent__productDetail_projectOwner .right::text').extract()
-        codePost = response.css('.prd-more-info div div::text').extract()
-        startDatePost = response.css('.prd-more-info div:nth-child(3)::text').extract()[-1]
-        endDatePost = response.css('.prd-more-info div+ div::text').extract()[-1]
-        typePost = response.css('.prd-more-info div+ div:nth-child(2)::text').extract()[-1]
 
         item={}
         item['type'] = type
@@ -115,7 +125,7 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         item['latitude'] = latitude
         item['link'] = response.request.url
         item['sizeFront'] = sizeFront
-        item['numberFloors'] = numberFloors
+        item['numberFloor'] = numberFloor
         item['wardin'] = wardin
         item['homeDirection'] = homeDirection
         item['balconyDirection'] = balconyDirection

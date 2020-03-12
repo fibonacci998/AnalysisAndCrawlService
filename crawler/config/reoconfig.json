@@ -1,0 +1,42 @@
+{
+    "url": "https://batdongsan.com.vn/nha-dat-ban-ha-noi",
+    "type": "reo",
+    "pageconfig":{
+      "pageurltemplate":"https://batdongsan.com.vn/nha-dat-ban-ha-noi/p$page",
+	    "numberpage":2
+    },
+    "reoconfig":{
+      "cssselector":{
+        "type": ".div-hold > .table-detail .row:nth-child(1) .right::text",
+        "address": "Đường Nguyễn Trãi, Phường Khương Trung, Thanh Xuân, Hà Nội", 
+        "numberBedrooms": "#LeftMainContent__productDetail_roomNumber .right::text", 
+        "numberToilets": "#LeftMainContent__productDetail_toilet .right::text", 
+        "nameOwner": "#LeftMainContent__productDetail_contactName .right::text", 
+        "mobile": "#LeftMainContent__productDetail_contactMobile .right::text", 
+        "email": "#contactEmail a::text", 
+        "price": {
+          "value":".mar-right-15 strong::text",
+          "split-price":"true"
+        }, 
+        "area": {
+          "value":".mar-right-15+ .gia-title strong::text",
+          "split-m2":"true"
+        }, 
+        "longitude": "#hdLong::attr(value)", 
+        "latitude": "#hdLat::attr(value)", 
+        "sizeFront": "#LeftMainContent__productDetail_frontEnd .right::text", 
+        "numberFloor": "#LeftMainContent__productDetail_floor .right::text", 
+        "wardin": "#LeftMainContent__productDetail_wardin .right::text", 
+        "homeDirection": "#LeftMainContent__productDetail_direction .right::text", 
+        "balconyDirection": "#LeftMainContent__productDetail_balcony .right::text", 
+        "interior": "#LeftMainContent__productDetail_interior .right::text", 
+        "projectName": "#project .row:nth-child(1) .right::text", 
+        "projectSize": "#LeftMainContent__productDetail_projectSize .right::text", 
+        "projectOwner": "#LeftMainContent__productDetail_projectOwner .right::text", 
+        "codePost": ".prd-more-info div div::text", 
+        "startDatePost": ".prd-more-info div:nth-child(3)::text", 
+        "endDatePost": ".prd-more-info div+ div::text", 
+        "typePost": ".prd-more-info div+ div:nth-child(2)::text"
+      }
+    }
+  }

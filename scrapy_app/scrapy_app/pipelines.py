@@ -23,17 +23,37 @@ class ScrapyAppPipeline(object):
 
     def process_item(self, item, spider):
         if self.typeCrawl == 'reo':
-            # print("price is "+str(item.get('price')[0])+", area is "+item.get('area')[0].rstrip().lstrip())
             reo = RealEstateObject(
-                idPost = item.get('codePost')[0],
-                typePost = item.get('typePost')[0],
+                codePost = item.get('codePost'),
+                typePost = item.get('typePost'),
 
-                title = item.get('address')[0],
-                price = item.get('price')[0],
-                area = item.get('area')[0]
+                title = item.get('address'),
+                price = item.get('price'),
+                area = item.get('area'),
+
+                type = item.get('type'),
+                address = item.get('address'),
+                numberBedrooms = item.get('numberBedrooms'),
+                numberToilets = item.get('numberToilets'),
+                nameOwner = item.get('nameOwner'),
+                mobile = item.get('mobile'),
+                email = item.get('email'),
+                longitude = item.get('longitude'),
+                latitude = item.get('latitude'),
+                link = item.get('link'),
+                sizeFront = item.get('sizeFront'),
+                numberFloor = item.get('numberFloor'),
+                wardin = item.get('wardin'),
+                homeDirection = item.get('homeDirection'),
+                balconyDirection = item.get('balconyDirection'),
+                interior = item.get('interior'),
+                projectName = item.get('projectName'),
+                projectSize = item.get('projectSize'),
+                projectOwner = item.get('projectOwner'),
+                startDatePost = item.get('startDatePost'),
+                endDatePost = item.get('endDatePost')
             )
             reo.idCrawlerJob = self.unique_id
-            print('save new reo')
             reo.save()
         if self.typeCrawl == 'quote':
             quote = Quote(text=item.get('text'), author=item.get('author'))
