@@ -15,6 +15,7 @@ import os
 import json
 import os.path
 BASE = os.path.dirname(os.path.abspath(__file__))
+import datetime
 
 scrapyd = ScrapydAPI('http://0.0.0.0:'+str(os.environ.get("PORT", 6800)))
 # Create your views here.
@@ -27,43 +28,82 @@ def is_valid_url(url):
 
     return True
 
-# @csrf_exempt
+
 class GetAllRealEstateObjectAPIView(APIView):
+    def sendRequestCrawl(self):
+        configFile = open((BASE+'/config/reoconfig.json'))
+        configData = json.load(configFile)
+        temp = json.dumps(configData)
+
+        url = configData['url']
+        domain = urlparse(url).netloc 
+        unique_id = str(uuid4())
+
+        settings = {
+            'unique_id': unique_id, 
+            'type': 'reo',
+            'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        }
+
+        task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+            settings=settings, url=url, domain=domain, config = temp)
+        while(scrapyd.job_status('default',task) == 'running'):
+            pass
+    def getValueFromGet(self, request, attribute):
+        try:
+            value = request.GET[attribute]
+        except:
+            value = None
+        return value
     def get(self, request):
         unique_id = request.data.get('unique_id', None)
         typeSpider = request.data.get('type', None)
-        typeSpider = request.GET['type']
-        if (typeSpider == 'reo'):
-            list_reo = RealEstateObject.objects.all()
+
+        typeSpider = self.getValueFromGet(request, 'type')
+        daily = self.getValueFromGet(request, 'daily')
+        crawlnow = self.getValueFromGet(request, 'crawlnow')
+
+        if (crawlnow == 'true'):       
+            self.sendRequestCrawl()
+        myData = None
+        if (daily == 'true'):
+            now = datetime.datetime.now()
+            list_reo = RealEstateObject.objects.filter(date__year=now.year, date__month=now.month, date__day=now.day)
+
+            # list_reo = RealEstateObject.objects.all()
+
+            # top_dates = RealEstateObject.objects.order_by('-date').values_list('date', flat=True).distinct()
+            # list_reo = RealEstateObject.objects.order_by('-date').filter(date__in=top_dates[:1])
+
             mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
 
-        if (typeSpider == 'quote'):
-            list_quote = Quote.objects.filter(unique_id = unique_id)
-            mydata = GetQuoteSerializer(list_quote, many = True)
+        elif (typeSpider == 'reo'):
+            list_reo = RealEstateObject.objects.all()
+
+            # top_prices = RealEstateObject.objects.order_by('price').values_list('price', flat=True).distinct()
+            # list_reo = RealEstateObject.objects.order_by('price').filter(price__in=top_prices[:10])
+
+            mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
+
+        # if (typeSpider == 'quote'):
+        #     list_quote = Quote.objects.filter(unique_id = unique_id)
+        #     mydata = GetQuoteSerializer(list_quote, many = True)
         if (mydata is None):
             return Response(status = status.HTTP_404_NOT_FOUND)
 
         return Response(data = mydata.data, status = status.HTTP_200_OK)
     
     def post(self, request):
-        print("Go post")
-        print(BASE+'/config/reoconfig.json')
+
         configFile = open((BASE+'/config/reoconfig.json'))
         configData = json.load(configFile)
         temp = json.dumps(configData)
-        # print(configData)
 
-
-        url = request.data.get('url', None) # take url comes from client. (From an input may be?)
+        url = configData['url']
         typeSpider = request.data.get('type', None)
-        if not url:
-            return JsonResponse({'error': 'Missing  args'})
-        
-        if not is_valid_url(url):
-            return JsonResponse({'error': 'URL is invalid'})
-        
-        domain = urlparse(url).netloc # parse the url and extract the domain
-        unique_id = str(uuid4()) # create a unique ID. 
+
+        domain = urlparse(url).netloc 
+        unique_id = str(uuid4())
 
         settings = {
             'unique_id': unique_id, 
@@ -77,4 +117,30 @@ class GetAllRealEstateObjectAPIView(APIView):
         if (typeSpider == 'quote'):
             task = scrapyd.schedule('default', 'toscrape-css', 
                 settings=settings, url=url, domain=domain)
+        while(scrapyd.job_status('default',task) == 'running'):
+            pass
+
+        
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started' })
+
+
+# class GetDailyRealEstateObjectAPIView(APIView):
+#     def get(self, request):
+#         unique_id = request.data.get('unique_id', None)
+#         typeSpider = request.data.get('type', None)
+#         typeSpider = request.GET['type']
+#         if (typeSpider == 'reo'):
+#             # list_reo = RealEstateObject.objects.all()
+
+#             top_dates = RealEstateObject.objects.order_by('-date').values_list('date', flat=True).distinct()
+#             list_reo = RealEstateObject.objects.order_by('-date').filter(date__in=top_dates[:1])
+
+#             mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
+
+#         if (mydata is None):
+#             return Response(status = status.HTTP_404_NOT_FOUND)
+
+#         return Response(data = mydata.data, status = status.HTTP_200_OK)
+#         pass
+#     def post(self, request):
+#         pass

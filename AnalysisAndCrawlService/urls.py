@@ -19,5 +19,7 @@ from django.conf.urls import url,static
 from crawler.views import GetAllRealEstateObjectAPIView
 urlpatterns = [
     url('admin/', admin.site.urls),
+    # url('realestateobject/?daily=true',GetDailyRealEstateObjectAPIView.as_view()),
     url('realestateobject/', GetAllRealEstateObjectAPIView.as_view())
+    
 ]

@@ -34,29 +34,27 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         for linkEachItem in response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract():
             yield scrapy.Request("https://" + self.domain+"/"+linkEachItem, callback=self.crawlDataRealEstate)
 
-    def convertPriceToNumber(self, price):
+    def convertPriceToNumber(self, price, area):
         priceConverted = price
         if (len(price[0].split()) > 0):
             if (price[0].split()[1] == u'tỷ'):
                 priceConverted = float(price[0].split()[0]) * 1000000000
             elif (price[0].split()[1] == u'triệu'):
                 priceConverted = float(price[0].split()[0]) * 1000000
+            elif (price[0].split()[1] == u'triệu/m²' and type(area) == float and area != -1):
+                priceConverted = float(price[0].split()[0]) * 1000000 * area
             else:
-                priceConverted = None
+                priceConverted = -1
         return priceConverted
 
-    def getValue(self,arr):
-        if (len(arr)>0):
-            return arr[0]
-        return None
-
-    def getValue(self, response, css, wantFullText=False, position=0):
+    def getValue(self, response, css, wantFullText=False, position=0, isNumber = False):
         valueExtract = response.css(css).extract()
         if (len(valueExtract) > 0):
             if (wantFullText):
                 return valueExtract[position].rstrip().lstrip()
             else:
                 return valueExtract[position].split()[0].rstrip().lstrip()
+        if (isNumber): return "-1"
         return None
 
     def crawlDataRealEstate(self, response):
@@ -69,34 +67,36 @@ class RealestateobjectcrawlSpider(CrawlSpider):
 
         address = self.getValue(response, configPost['address'], True)
 
-        numberBedrooms = self.getValue(response, configPost['numberBedrooms'])
+        numberBedrooms = self.getValue(response, configPost['numberBedrooms'], isNumber=True)
 
-        numberToilets = self.getValue(response, configPost['numberToilets'])
-    
-        price = response.css(configPost['price']['value']).extract()
-        if (configPost['price']['split-price'] == "true"):
-            price = self.convertPriceToNumber(price)
-        
-        area = self.getValue(response, configPost['area']['value'])
+        numberToilets = self.getValue(response, configPost['numberToilets'], isNumber=True)
+
+        area = self.getValue(response, configPost['area']['value'], isNumber=True)
         if (configPost['area']['split-m2'] == "true"):
             try:
                 area = float(area.split('m')[0].replace(',','.'))
             except:
-                area = None
+                area = -1
  
-        longitude = self.getValue(response, configPost['longitude'])
+
+        price = response.css(configPost['price']['value']).extract()
+        if (configPost['price']['split-price'] == "true"):
+            price = self.convertPriceToNumber(price, area)
+        
+        
+        longitude = self.getValue(response, configPost['longitude'], isNumber=True)
         if (longitude != None): longitude = float(longitude)
-        latitude = self.getValue(response, configPost['latitude'])
+        latitude = self.getValue(response, configPost['latitude'], isNumber=True)
         if (latitude != None): latitude = float(latitude)
         nameOwner = self.getValue(response, configPost['nameOwner'],True)
         mobile = self.getValue(response, configPost['mobile'], True)
         email = self.getValue(response, configPost['email'], True)
-        sizeFront = self.getValue(response, configPost['sizeFront'])
-        if (sizeFront != None): sizeFront = float(sizeFront.replace(',','.'))
-        numberFloor = self.getValue(response, configPost['numberFloor'])
-        if (numberFloor != None): numberFloor = float(numberFloor.replace(',','.'))
+        sizeFront = self.getValue(response, configPost['sizeFront'], isNumber=True)
+        if (sizeFront != None): sizeFront = float((sizeFront).replace(',','.'))
+        numberFloor = self.getValue(response, configPost['numberFloor'], isNumber=True)
+        if (numberFloor != None): numberFloor = float((numberFloor).replace(',','.'))
         wardin = self.getValue(response, configPost['wardin'])
-        if (wardin != None): wardin = float(wardin.replace(',','.'))
+        if (wardin != None): wardin = float((wardin).replace(',','.'))
         homeDirection = self.getValue(response, configPost['homeDirection'], True)
         balconyDirection = self.getValue(response, configPost['balconyDirection'], True)
         interior = self.getValue(response, configPost['interior'], True)

@@ -3,12 +3,12 @@
     "type": "reo",
     "pageconfig":{
       "pageurltemplate":"https://batdongsan.com.vn/nha-dat-ban-ha-noi/p$page",
-	    "numberpage":2
+	    "numberpage":10
     },
     "reoconfig":{
       "cssselector":{
         "type": ".div-hold > .table-detail .row:nth-child(1) .right::text",
-        "address": "Đường Nguyễn Trãi, Phường Khương Trung, Thanh Xuân, Hà Nội", 
+        "address": ".div-hold > .table-detail .row:nth-child(2) .right::text", 
         "numberBedrooms": "#LeftMainContent__productDetail_roomNumber .right::text", 
         "numberToilets": "#LeftMainContent__productDetail_toilet .right::text", 
         "nameOwner": "#LeftMainContent__productDetail_contactName .right::text", 

@@ -54,7 +54,10 @@ class ScrapyAppPipeline(object):
                 endDatePost = item.get('endDatePost')
             )
             reo.idCrawlerJob = self.unique_id
-            reo.save()
+
+            search = RealEstateObject.objects.filter(link__in=[reo.link])
+            if (search == None):
+                reo.save()
         if self.typeCrawl == 'quote':
             quote = Quote(text=item.get('text'), author=item.get('author'))
             quote.unique_id = self.unique_id
