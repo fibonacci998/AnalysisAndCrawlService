@@ -7,7 +7,7 @@
 from crawler.models import RealEstateObject, Quote
 from pydispatch import dispatcher
 from scrapy import signals
-
+from crawler.serializers import GetAllRealEstateObjectSerializer
 class ScrapyAppPipeline(object):
     def __init__(self, unique_id, typeCrawl, *args, **kwargs):
         self.unique_id = unique_id
@@ -54,9 +54,9 @@ class ScrapyAppPipeline(object):
                 endDatePost = item.get('endDatePost')
             )
             reo.idCrawlerJob = self.unique_id
-
-            search = RealEstateObject.objects.filter(link__in=[reo.link])
-            if (search == None):
+            search = RealEstateObject.objects.filter(link=reo.link)
+            data = GetAllRealEstateObjectSerializer(search, many = True)
+            if (len(data.data)==0):
                 reo.save()
         if self.typeCrawl == 'quote':
             quote = Quote(text=item.get('text'), author=item.get('author'))

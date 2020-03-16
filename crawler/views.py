@@ -47,8 +47,10 @@ class GetAllRealEstateObjectAPIView(APIView):
 
         task = scrapyd.schedule('default', 'realestateobjectcrawl', 
             settings=settings, url=url, domain=domain, config = temp)
-        while(scrapyd.job_status('default',task) == 'running'):
+        while(scrapyd.job_status('default',task) != 'finished'):
             pass
+        return unique_id
+
     def getValueFromGet(self, request, attribute):
         try:
             value = request.GET[attribute]
@@ -62,10 +64,10 @@ class GetAllRealEstateObjectAPIView(APIView):
         typeSpider = self.getValueFromGet(request, 'type')
         daily = self.getValueFromGet(request, 'daily')
         crawlnow = self.getValueFromGet(request, 'crawlnow')
-
         if (crawlnow == 'true'):       
-            self.sendRequestCrawl()
+            unique_id = self.sendRequestCrawl()
         myData = None
+        
         if (daily == 'true'):
             now = datetime.datetime.now()
             list_reo = RealEstateObject.objects.filter(date__year=now.year, date__month=now.month, date__day=now.day)
@@ -78,8 +80,8 @@ class GetAllRealEstateObjectAPIView(APIView):
             mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
 
         elif (typeSpider == 'reo'):
-            list_reo = RealEstateObject.objects.all()
-
+            # list_reo = RealEstateObject.objects.all()
+            list_reo = RealEstateObject.objects.filter(idCrawlerJob=unique_id)
             # top_prices = RealEstateObject.objects.order_by('price').values_list('price', flat=True).distinct()
             # list_reo = RealEstateObject.objects.order_by('price').filter(price__in=top_prices[:10])
 
@@ -122,25 +124,3 @@ class GetAllRealEstateObjectAPIView(APIView):
 
         
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started' })
-
-
-# class GetDailyRealEstateObjectAPIView(APIView):
-#     def get(self, request):
-#         unique_id = request.data.get('unique_id', None)
-#         typeSpider = request.data.get('type', None)
-#         typeSpider = request.GET['type']
-#         if (typeSpider == 'reo'):
-#             # list_reo = RealEstateObject.objects.all()
-
-#             top_dates = RealEstateObject.objects.order_by('-date').values_list('date', flat=True).distinct()
-#             list_reo = RealEstateObject.objects.order_by('-date').filter(date__in=top_dates[:1])
-
-#             mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
-
-#         if (mydata is None):
-#             return Response(status = status.HTTP_404_NOT_FOUND)
-
-#         return Response(data = mydata.data, status = status.HTTP_200_OK)
-#         pass
-#     def post(self, request):
-#         pass

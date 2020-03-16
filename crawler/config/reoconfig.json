@@ -3,7 +3,7 @@
     "type": "reo",
     "pageconfig":{
       "pageurltemplate":"https://batdongsan.com.vn/nha-dat-ban-ha-noi/p$page",
-	    "numberpage":10
+	    "numberpage":2
     },
     "reoconfig":{
       "cssselector":{
