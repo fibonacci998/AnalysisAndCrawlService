@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import RealEstateObject, Employee, Quote
+from .models import RealEstateObject, News
 # Register your models here.
 
 admin.site.register(RealEstateObject)
-admin.site.register(Employee)
-admin.site.register(Quote)
+admin.site.register(News)

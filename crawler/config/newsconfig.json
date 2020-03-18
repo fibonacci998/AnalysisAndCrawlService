@@ -1,0 +1,17 @@
+{
+    "url": "https://dantri.com.vn/bat-dong-san-ha-noi/trang-1.tag",
+    "type": "news",
+    "pageconfig":{
+      "pageurltemplate":"https://dantri.com.vn/bat-dong-san-ha-noi/trang-$page.tag",
+	    "numberpage":2
+    },
+    "newsconfig":{
+      "cssselector":{
+        "allpost":"#listcheckepl .clearfix",
+        "imagelink":"img::attr(src)",
+        "link":"a::attr(href)",
+        "title":"a::attr(title)",
+        "description":".fon5.wid324.fl::text"
+      }
+    }
+  }

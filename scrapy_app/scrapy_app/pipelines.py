@@ -4,10 +4,10 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from crawler.models import RealEstateObject, Quote
+from crawler.models import RealEstateObject, News
 from pydispatch import dispatcher
 from scrapy import signals
-from crawler.serializers import GetAllRealEstateObjectSerializer
+from crawler.serializers import GetAllRealEstateObjectSerializer, GetAllNewsSerializer
 class ScrapyAppPipeline(object):
     def __init__(self, unique_id, typeCrawl, *args, **kwargs):
         self.unique_id = unique_id
@@ -58,14 +58,19 @@ class ScrapyAppPipeline(object):
             data = GetAllRealEstateObjectSerializer(search, many = True)
             if (len(data.data)==0):
                 reo.save()
-        if self.typeCrawl == 'quote':
-            quote = Quote(text=item.get('text'), author=item.get('author'))
-            quote.unique_id = self.unique_id
-            quote.save()
-        # print(self.typeCrawl)
-        # quote = Quote(text=item.get('text'), author=item.get('author'))
-        # quote.unique_id = self.unique_id
-        # quote.save()
+        elif self.typeCrawl == 'news':
+            news = News(
+                link = item.get('link'),
+                imageLink = item.get('imageLink'),
+                title = item.get('title'),
+                description = item.get('description')
+            )
+            news.idCrawlerJob = self.unique_id
+            search = News.objects.filter(link=news.link)
+            data = GetAllNewsSerializer(search, many = True)
+            if (len(data.data)==0):
+                news.save()
+         
         return item
 
     def spider_closed(self, spider):

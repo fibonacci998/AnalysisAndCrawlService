@@ -35,11 +35,10 @@ class RealEstateObject(models.Model):
     startDatePost = models.DateTimeField(default=timezone.now)
     endDatePost = models.DateTimeField(default=timezone.now)
 
-class Employee(models.Model):
-    title = models.CharField(max_length=255)
-    price = models.IntegerField(default=0)
-    content = models.CharField(max_length=255)
-class Quote(models.Model):
-    unique_id = models.CharField(max_length=100, null=True)
-    text = models.TextField()
-    author = models.CharField(max_length=512)
+class News(models.Model):
+    idCrawlerJob =  models.CharField(null=True, max_length=100)
+    link = models.TextField(null=True)
+    imageLink = models.TextField(null=True)
+    title = models.TextField(null=True)
+    description = models.TextField(null=True)
+    date = models.DateTimeField(default=timezone.now)
