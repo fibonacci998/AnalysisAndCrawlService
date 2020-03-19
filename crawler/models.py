@@ -3,7 +3,7 @@ from django.utils import timezone
 # Create your models here.
 class RealEstateObject(models.Model):
     idCrawlerJob =  models.CharField(null=True, max_length=100)
-
+    
     codePost = models.IntegerField(null=True)
     typePost = models.CharField(null=True, max_length=255)
 
@@ -34,6 +34,7 @@ class RealEstateObject(models.Model):
     projectOwner = models.CharField(null=True, max_length=255)
     startDatePost = models.DateTimeField(default=timezone.now)
     endDatePost = models.DateTimeField(default=timezone.now)
+    domain = models.TextField(null=True)
 
 class News(models.Model):
     idCrawlerJob =  models.CharField(null=True, max_length=100)
@@ -42,3 +43,4 @@ class News(models.Model):
     title = models.TextField(null=True)
     description = models.TextField(null=True)
     date = models.DateTimeField(default=timezone.now)
+    domain = models.TextField(null=True)

@@ -137,5 +137,5 @@ class RealestateobjectcrawlSpider(CrawlSpider):
         item['startDatePost'] = startDatePost
         item['endDatePost'] = endDatePost
         item['typePost'] = typePost
-
+        item['domain'] = self.domain
         yield item

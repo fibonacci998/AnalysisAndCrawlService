@@ -43,5 +43,6 @@ class NewsCrawlSpider(CrawlSpider):
                 'link' : 'https://'+self.domain+link[0],
                 'imageLink' : imageLink,
                 'title' : title,
-                'description' : description
+                'description' : description,
+                'domain' : self.domain
             }

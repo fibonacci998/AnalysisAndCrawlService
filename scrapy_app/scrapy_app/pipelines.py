@@ -51,7 +51,8 @@ class ScrapyAppPipeline(object):
                 projectSize = item.get('projectSize'),
                 projectOwner = item.get('projectOwner'),
                 startDatePost = item.get('startDatePost'),
-                endDatePost = item.get('endDatePost')
+                endDatePost = item.get('endDatePost'),
+                domain = item.get('domain')
             )
             reo.idCrawlerJob = self.unique_id
             search = RealEstateObject.objects.filter(link=reo.link)
@@ -63,7 +64,8 @@ class ScrapyAppPipeline(object):
                 link = item.get('link'),
                 imageLink = item.get('imageLink'),
                 title = item.get('title'),
-                description = item.get('description')
+                description = item.get('description'),
+                domain = item.get('domain')
             )
             news.idCrawlerJob = self.unique_id
             search = News.objects.filter(link=news.link)
