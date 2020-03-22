@@ -26,10 +26,6 @@ class GetAllRealEstateObjectAPIView(APIView):
         if (typeSpider == 'news'):
             configFile = open((BASE+'/config/newsconfig.json'))
         configData = json.load(configFile)
-        temp = json.dumps(configData)
-
-        url = configData['url']
-        domain = urlparse(url).netloc 
         unique_id = str(uuid4())
 
         settings = {
@@ -37,19 +33,26 @@ class GetAllRealEstateObjectAPIView(APIView):
             'type': typeSpider,
             'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         }
-        settings = {
-            'unique_id': unique_id, 
-            'type': typeSpider,
-            'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-        }
+
+        listTask = []
         if (typeSpider == 'reo'):
-            task = scrapyd.schedule('default', 'realestateobjectcrawl', 
-                settings=settings, url=url, domain=domain, config = temp)
+            for reo in configData:
+                url = reo['url']
+                domain = urlparse(url).netloc 
+                task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+                    settings=settings, url=url, domain=domain, config = json.dumps(reo))
+                listTask.append(task)
         if (typeSpider == 'news'):
-            task = scrapyd.schedule('default', 'newscrawl', 
-                settings=settings, url=url, domain=domain, config = temp)
-        while(scrapyd.job_status('default',task) != 'finished'):
-            pass
+            for news in configData:
+                url = news['url']
+                domain = urlparse(url).netloc 
+                task = scrapyd.schedule('default', 'newscrawl', 
+                    settings=settings, url=url, domain=domain, config = json.dumps(news))
+                listTask.append(task)
+        
+        for task in listTask:
+            while(scrapyd.job_status('default',task) != 'finished'):
+                pass
         return unique_id
 
     def getValueFromGet(self, request, attribute):
@@ -106,10 +109,6 @@ class GetAllRealEstateObjectAPIView(APIView):
             configFile = open((BASE+'/config/newsconfig.json'))
         
         configData = json.load(configFile)
-        temp = json.dumps(configData)
-
-        url = configData['url']
-        domain = urlparse(url).netloc 
         unique_id = str(uuid4())
         settings = {
             'unique_id': unique_id, 
@@ -117,11 +116,17 @@ class GetAllRealEstateObjectAPIView(APIView):
             'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         }
         if (typeSpider == 'reo'):
-            task = scrapyd.schedule('default', 'realestateobjectcrawl', 
-                settings=settings, url=url, domain=domain, config = temp)
+            for reo in configData:
+                url = reo['url']
+                domain = urlparse(url).netloc 
+                task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+                    settings=settings, url=url, domain=domain, config = json.dumps(reo))
         if (typeSpider == 'news'):
-            task = scrapyd.schedule('default', 'newscrawl', 
-                settings=settings, url=url, domain=domain, config = temp)
+            for news in configData:
+                url = news['url']
+                domain = urlparse(url).netloc 
+                task = scrapyd.schedule('default', 'newscrawl', 
+                    settings=settings, url=url, domain=domain, config = json.dumps(news))
         
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started' })
 

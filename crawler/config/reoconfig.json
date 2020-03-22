@@ -1,12 +1,13 @@
-{
+[{
     "url": "https://batdongsan.com.vn/nha-dat-ban-ha-noi",
     "type": "reo",
     "pageconfig":{
       "pageurltemplate":"https://batdongsan.com.vn/nha-dat-ban-ha-noi/p$page",
-	    "numberpage":50
+	    "numberpage":10
     },
     "reoconfig":{
       "cssselector":{
+        "allpost":".p-title a::attr(href)",
         "type": ".div-hold > .table-detail .row:nth-child(1) .right::text",
         "address": ".div-hold > .table-detail .row:nth-child(2) .right::text", 
         "numberBedrooms": "#LeftMainContent__productDetail_roomNumber .right::text", 
@@ -39,4 +40,4 @@
         "typePost": ".prd-more-info div+ div:nth-child(2)::text"
       }
     }
-  }
+  }]

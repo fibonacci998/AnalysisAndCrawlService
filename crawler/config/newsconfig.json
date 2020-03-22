@@ -1,9 +1,9 @@
-{
+[{
     "url": "https://dantri.com.vn/bat-dong-san-ha-noi/trang-1.tag",
     "type": "news",
     "pageconfig":{
       "pageurltemplate":"https://dantri.com.vn/bat-dong-san-ha-noi/trang-$page.tag",
-	    "numberpage":2
+	    "numberpage":6
     },
     "newsconfig":{
       "cssselector":{
@@ -14,4 +14,21 @@
         "description":".fon5.wid324.fl::text"
       }
     }
-}
+},
+{
+  "url": "https://batdongsan.com.vn/bat-dong-san-ha-noi/p1",
+  "type": "news",
+  "pageconfig":{
+    "pageurltemplate":"https://batdongsan.com.vn/bat-dong-san-ha-noi/p$page",
+    "numberpage":10
+  },
+  "newsconfig":{
+    "cssselector":{
+      "allpost":".tc-tit",
+      "imagelink":"img::attr(src)",
+      "link":"a::attr(href)",
+      "title":"a::attr(title)",
+      "description":"p::text"
+    }
+  }
+}]

@@ -31,7 +31,7 @@ class RealestateobjectcrawlSpider(CrawlSpider):
             yield scrapy.Request(urlPage, callback=self.crawlDataTotalPage)
             
     def crawlDataTotalPage(self, response):
-        for linkEachItem in response.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "p-title", " " ))]//a/@href').extract():
+        for linkEachItem in response.css(self.config['reoconfig']['cssselector']['allpost']).extract():  
             yield scrapy.Request("https://" + self.domain+"/"+linkEachItem, callback=self.crawlDataRealEstate)
 
     def convertPriceToNumber(self, price, area):

@@ -32,7 +32,6 @@ class NewsCrawlSpider(CrawlSpider):
             
     def crawlDataTotalPage(self, response):
         configCss = self.config['newsconfig']['cssselector']
-        print("config here: "+configCss['allpost'])
         allDiv = response.css(configCss['allpost'])
         for news in allDiv:
             link = news.css(configCss['link']).extract()
