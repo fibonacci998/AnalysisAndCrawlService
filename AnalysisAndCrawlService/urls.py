@@ -16,10 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url,static
 # from django.urls import path
-from crawler.views import GetAllRealEstateObjectAPIView
+from crawler.views import GetDataAPIView
 urlpatterns = [
     url('admin/', admin.site.urls),
     # url('realestateobject/?daily=true',GetDailyRealEstateObjectAPIView.as_view()),
-    url('realestateobject/', GetAllRealEstateObjectAPIView.as_view())
+    url('realestateobject/', GetDataAPIView.as_view())
     
 ]

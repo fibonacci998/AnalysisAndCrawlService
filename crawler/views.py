@@ -19,7 +19,7 @@ import datetime
 
 scrapyd = ScrapydAPI('http://0.0.0.0:'+str(os.environ.get("PORT", 6800)))
 
-class GetAllRealEstateObjectAPIView(APIView):
+class GetDataAPIView(APIView):
     def sendRequestCrawl(self, typeSpider):
         if (typeSpider == 'reo'):
             configFile = open((BASE+'/config/reoconfig.json'))

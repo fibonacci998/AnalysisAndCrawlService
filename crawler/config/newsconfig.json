@@ -20,7 +20,7 @@
   "type": "news",
   "pageconfig":{
     "pageurltemplate":"https://batdongsan.com.vn/bat-dong-san-ha-noi/p$page",
-    "numberpage":10
+    "numberpage":105
   },
   "newsconfig":{
     "cssselector":{
