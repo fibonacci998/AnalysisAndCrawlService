@@ -5,8 +5,8 @@ from scrapy.spiders import CrawlSpider, Rule
 from datetime import datetime
 import json
 from string import Template
-class RealestateobjectcrawlSpider(CrawlSpider):
-    name = 'realestateobjectcrawl'
+class RealEstateSpider(CrawlSpider):
+    name = 'realestatespider'
     page_number = 1
 
     def __init__(self, *args, **kwargs):

@@ -4,10 +4,10 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from crawler.models import RealEstateObject, News
+from crawler.models import RealEstate, News
 from pydispatch import dispatcher
 from scrapy import signals
-from crawler.serializers import GetAllRealEstateObjectSerializer, GetAllNewsSerializer
+from crawler.serializers import GetAllRealEstateSerializer, GetAllNewsSerializer
 class ScrapyAppPipeline(object):
     def __init__(self, unique_id, typeCrawl, *args, **kwargs):
         self.unique_id = unique_id
@@ -23,7 +23,7 @@ class ScrapyAppPipeline(object):
 
     def process_item(self, item, spider):
         if self.typeCrawl == 'reo':
-            reo = RealEstateObject(
+            reo = RealEstate(
                 codePost = item.get('codePost'),
                 typePost = item.get('typePost'),
 
@@ -55,8 +55,8 @@ class ScrapyAppPipeline(object):
                 domain = item.get('domain')
             )
             reo.idCrawlerJob = self.unique_id
-            search = RealEstateObject.objects.filter(link=reo.link)
-            data = GetAllRealEstateObjectSerializer(search, many = True)
+            search = RealEstate.objects.filter(link=reo.link)
+            data = GetAllRealEstateSerializer(search, many = True)
             if (len(data.data)==0):
                 reo.save()
         elif self.typeCrawl == 'news':

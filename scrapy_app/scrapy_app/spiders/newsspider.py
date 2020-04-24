@@ -5,8 +5,8 @@ from scrapy.spiders import CrawlSpider, Rule
 from datetime import datetime
 import json
 from string import Template
-class NewsCrawlSpider(CrawlSpider):
-    name = 'newscrawl'
+class NewsSpider(CrawlSpider):
+    name = 'newsspider'
     page_number = 1
 
     def __init__(self, *args, **kwargs):

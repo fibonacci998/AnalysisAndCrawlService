@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import RealEstateObject, News
+from .models import RealEstate, News
 
-class GetAllRealEstateObjectSerializer(serializers.ModelSerializer):
+class GetAllRealEstateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RealEstateObject
+        model = RealEstate
         # fields = ('idPost', 'price', 'area', 'title')
         # fields = ('title', 'price', 'content')
         fields = '__all__'

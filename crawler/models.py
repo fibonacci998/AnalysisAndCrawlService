@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 # Create your models here.
-class RealEstateObject(models.Model):
+class RealEstate(models.Model):
     idCrawlerJob =  models.CharField(null=True, max_length=100)
     
     codePost = models.IntegerField(null=True)

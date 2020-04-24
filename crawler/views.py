@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import RealEstateObject, News
-from .serializers import GetAllRealEstateObjectSerializer, GetAllNewsSerializer
+from .models import RealEstate, News
+from .serializers import GetAllRealEstateSerializer, GetAllNewsSerializer
 from django.views.decorators.csrf import csrf_exempt
 from scrapyd_api import ScrapydAPI
 from django.http import JsonResponse
@@ -39,14 +39,14 @@ class GetDataAPIView(APIView):
             for reo in configData:
                 url = reo['url']
                 domain = urlparse(url).netloc 
-                task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+                task = scrapyd.schedule('default', 'realestatespider', 
                     settings=settings, url=url, domain=domain, config = json.dumps(reo))
                 listTask.append(task)
         if (typeSpider == 'news'):
             for news in configData:
                 url = news['url']
                 domain = urlparse(url).netloc 
-                task = scrapyd.schedule('default', 'newscrawl', 
+                task = scrapyd.schedule('default', 'newsspider', 
                     settings=settings, url=url, domain=domain, config = json.dumps(news))
                 listTask.append(task)
         
@@ -76,14 +76,14 @@ class GetDataAPIView(APIView):
         if (typeSpider == 'reo'):
             if (daily == 'true'):
                 now = datetime.datetime.now()
-                list_reo = RealEstateObject.objects.filter(date__year=now.year, date__month=now.month, date__day=now.day)
+                list_reo = RealEstate.objects.filter(date__year=now.year, date__month=now.month, date__day=now.day)
             else:
                 if (unique_id != None):
-                    list_reo = RealEstateObject.objects.filter(idCrawlerJob=unique_id)
+                    list_reo = RealEstate.objects.filter(idCrawlerJob=unique_id)
                 else:
-                    list_reo = RealEstateObject.objects.all()
+                    list_reo = RealEstate.objects.all()
 
-            mydata = GetAllRealEstateObjectSerializer(list_reo, many = True)
+            mydata = GetAllRealEstateSerializer(list_reo, many = True)
         elif (typeSpider == 'news'):
             if (daily == 'true'):
                 now = datetime.datetime.now()
@@ -119,13 +119,13 @@ class GetDataAPIView(APIView):
             for reo in configData:
                 url = reo['url']
                 domain = urlparse(url).netloc 
-                task = scrapyd.schedule('default', 'realestateobjectcrawl', 
+                task = scrapyd.schedule('default', 'realestatespider', 
                     settings=settings, url=url, domain=domain, config = json.dumps(reo))
         if (typeSpider == 'news'):
             for news in configData:
                 url = news['url']
                 domain = urlparse(url).netloc 
-                task = scrapyd.schedule('default', 'newscrawl', 
+                task = scrapyd.schedule('default', 'newsspider', 
                     settings=settings, url=url, domain=domain, config = json.dumps(news))
         
         return JsonResponse({'task_id': task, 'unique_id': unique_id, 'status': 'started' })
