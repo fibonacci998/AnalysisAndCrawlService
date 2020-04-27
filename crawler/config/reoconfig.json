@@ -1,15 +1,19 @@
-[{
+[
+  {
     "url": "https://batdongsan.com.vn/nha-dat-ban-ha-noi",
     "type": "reo",
     "pageconfig":{
       "pageurltemplate":"https://batdongsan.com.vn/nha-dat-ban-ha-noi/p$page",
-	    "numberpage":10
+	    "numberpage":1
     },
     "reoconfig":{
       "cssselector":{
         "allpost":".p-title a::attr(href)",
         "type": ".div-hold > .table-detail .row:nth-child(1) .right::text",
-        "address": ".div-hold > .table-detail .row:nth-child(2) .right::text", 
+        "address": {
+          "value":".div-hold > .table-detail .row:nth-child(2) .right::text",
+          "split":"false"
+        },
         "numberBedrooms": "#LeftMainContent__productDetail_roomNumber .right::text", 
         "numberToilets": "#LeftMainContent__productDetail_toilet .right::text", 
         "nameOwner": "#LeftMainContent__productDetail_contactName .right::text", 
@@ -23,8 +27,14 @@
           "value":".mar-right-15+ .gia-title strong::text",
           "split-m2":"true"
         }, 
-        "longitude": "#hdLong::attr(value)", 
-        "latitude": "#hdLat::attr(value)", 
+        "longitude": {
+          "value":"#hdLong::attr(value)",
+          "regex":""
+        }, 
+        "latitude": {
+          "value":"#hdLat::attr(value)",
+          "regex":""
+        }, 
         "sizeFront": "#LeftMainContent__productDetail_frontEnd .right::text", 
         "numberFloor": "#LeftMainContent__productDetail_floor .right::text", 
         "wardin": "#LeftMainContent__productDetail_wardin .right::text", 
@@ -40,4 +50,58 @@
         "typePost": ".prd-more-info div+ div:nth-child(2)::text"
       }
     }
-  }]
+  },
+  {
+    "url": "https://homedy.com/ban-nha-dat-ha-noi",
+    "type": "reo",
+    "pageconfig":{
+      "pageurltemplate":"https://homedy.com/ban-nha-dat-ha-noi/p$page",
+      "numberpage":10
+    },
+    "reoconfig":{
+      "cssselector":{
+        "allpost":"#MainPage .title::attr(href)",
+        "type": ".type-name::text",
+        "address": {
+          "value": ".col-sm-8 .address *::text",
+          "split":"true"
+        }, 
+        "numberBedrooms": ".bed-room+ text::text", 
+        "numberToilets": ".bath-room+ text::text", 
+        "nameOwner": ".agency .info .name::text", 
+        "price": {
+          "value":".row:nth-child(1) .cell-right span::text",
+          "split-price":"false"
+        }, 
+        "area": {
+          "value":".row:nth-child(2) .cell-right span::text",
+          "split-m2":"false"
+        }, 
+        "longitude":{
+          "value":"script",
+          "regex":"var _longtitude = Number\\(([0-9.]+)\\)"
+        },
+        "latitude":{
+          "value":"script",
+          "regex":"var _longtitude = Number\\(([0-9.]+)\\)"
+        },
+        "codePost": ".code:nth-child(2)::text", 
+        "endDatePost": ".date-created~ .date-created+::text", 
+        "typePost": ".type-name::text",
+
+        "mobile": "#LeftMainContent__productDetail_contactMobile .right::text", 
+        "email": "#contactEmail a::text", 
+        "sizeFront": "#LeftMainContent__productDetail_frontEnd .right::text", 
+        "numberFloor": "#LeftMainContent__productDetail_floor .right::text", 
+        "wardin": "#LeftMainContent__productDetail_wardin .right::text", 
+        "homeDirection": "#LeftMainContent__productDetail_direction .right::text", 
+        "balconyDirection": "#LeftMainContent__productDetail_balcony .right::text", 
+        "interior": "#LeftMainContent__productDetail_interior .right::text", 
+        "projectName": "#project .row:nth-child(1) .right::text", 
+        "projectSize": "#LeftMainContent__productDetail_projectSize .right::text", 
+        "projectOwner": "#LeftMainContent__productDetail_projectOwner .right::text", 
+        "startDatePost": ".date-created~ .date-created+::text"
+      }
+    }
+  }
+]

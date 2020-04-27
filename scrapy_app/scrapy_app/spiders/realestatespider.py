@@ -47,10 +47,24 @@ class RealEstateSpider(CrawlSpider):
                 priceConverted = -1
         return priceConverted
 
-    def getValue(self, response, css, wantFullText=False, position=0, isNumber = False):
+    def convertPriceToNumberNormal(self, price):
+        if (len(price)==0): return -1
+        try:
+            price = float(price[0])
+        except:
+            return -1
+        if (price >= 100):
+            return price* 1000000
+        return price*1000000000
+
+    def getValue(self, response, css, wantFullText=False, position=0, isNumber = False, regex=""):
         valueExtract = response.css(css).extract()
+        if (regex != "" ):
+            valueExtract = response.css(css).re(regex)
         if (len(valueExtract) > 0):
             if (wantFullText):
+                if (position=='-1'):
+                    return "".join(valueExtract).rstrip().lstrip()
                 return valueExtract[position].rstrip().lstrip()
             else:
                 return valueExtract[position].split()[0].rstrip().lstrip()
@@ -65,7 +79,7 @@ class RealEstateSpider(CrawlSpider):
         
         type = self.getValue(response, configPost['type'], True)
 
-        address = self.getValue(response, configPost['address'], True)
+        address = self.getValue(response, configPost['address']['value'], True, position = ('-1' if configPost['address']['split']=="true" else 0 ))
 
         numberBedrooms = self.getValue(response, configPost['numberBedrooms'], isNumber=True)
 
@@ -82,11 +96,12 @@ class RealEstateSpider(CrawlSpider):
         price = response.css(configPost['price']['value']).extract()
         if (configPost['price']['split-price'] == "true"):
             price = self.convertPriceToNumber(price, area)
+        else:
+            price = self.convertPriceToNumberNormal(price)
         
-        
-        longitude = self.getValue(response, configPost['longitude'], isNumber=True)
+        longitude = self.getValue(response, configPost['longitude']['value'], regex=configPost['longitude']['regex'], isNumber=True)
         if (longitude != None): longitude = float(longitude)
-        latitude = self.getValue(response, configPost['latitude'], isNumber=True)
+        latitude = self.getValue(response, configPost['latitude']['value'], regex=configPost['latitude']['regex'], isNumber=True)
         if (latitude != None): latitude = float(latitude)
         nameOwner = self.getValue(response, configPost['nameOwner'],True)
         mobile = self.getValue(response, configPost['mobile'], True)
@@ -103,10 +118,11 @@ class RealEstateSpider(CrawlSpider):
         projectSize = self.getValue(response, configPost['projectSize'], True)
         projectName = self.getValue(response, configPost['projectName'], True)
         projectOwner = self.getValue(response, configPost['projectOwner'], True)
-        
         dateTemp = self.getValue(response, configPost['startDatePost'],True, -1)
+        dateTemp = dateTemp.replace('/', '-')
         startDatePost = datetime.strptime(dateTemp,'%d-%m-%Y').date()
         dateTemp = self.getValue(response, configPost['endDatePost'],True, -1)
+        dateTemp = dateTemp.replace('/', '-')
         endDatePost = datetime.strptime(dateTemp,'%d-%m-%Y').date()
         typePost = self.getValue(response, configPost['typePost'], True, -1)
 
