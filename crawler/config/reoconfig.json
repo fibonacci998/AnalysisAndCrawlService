@@ -56,7 +56,7 @@
     "type": "reo",
     "pageconfig":{
       "pageurltemplate":"https://homedy.com/ban-nha-dat-ha-noi/p$page",
-      "numberpage":10
+      "numberpage":100
     },
     "reoconfig":{
       "cssselector":{

@@ -11,3 +11,8 @@ class GetAllNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
+
+class GetAttributeRegression(serializers.ModelSerializer):
+    class Meta:
+        model = RealEstate
+        fields = ('codePost', 'price', 'area', 'sizeFront', 'numberFloor', 'wardin', 'longitude', 'latitude', 'numberBedrooms','numberToilets')

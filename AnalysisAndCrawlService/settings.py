@@ -59,6 +59,8 @@ REST_FRAMEWORK = {
                 'rest_framework.permissions.IsAuthenticated',
     ),
 
+    'COERCE_DECIMAL_TO_STRING': False
+
 }
 ROOT_URLCONF = 'AnalysisAndCrawlService.urls'
 
