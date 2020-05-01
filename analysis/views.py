@@ -11,21 +11,22 @@ from crawler.serializers import GetAttributeRegression
 import os.path
 BASE = os.path.dirname(os.path.abspath(__file__))
 
-class GetResultRegression(APIView):
+class GetPrice(APIView):
 
     reo = tc.SFrame(BASE+'/data_sframe')
     model = tc.load_model(BASE+'/model_3')
 
     def transform_value(self, value, field):
         if (value == -1 or value == 0):
-            return reo[(reo[field] != -1) & (reo[field] != 0)][field].mean()
+            return self.reo[(self.reo[field] != -1) & (self.reo[field] != 0)][field].mean()
         else:
             return value
-    def getValueFromGet(self, request, attribute):
+    def getValueFromGet(self, request, field):
         try:
-            value = float(request.GET[attribute])
+            value = float(request.GET[field])
         except:
-            value = None
+            value = -1
+            value = self.transform_value(value, field)
         return value
 
     def get(self, request):

@@ -17,10 +17,10 @@ from django.contrib import admin
 from django.conf.urls import url,static
 # from django.urls import path
 from crawler.views import GetDataAPIView
-from analysis.views import GetResultRegression
+from analysis.views import GetPrice
 urlpatterns = [
     url('admin/', admin.site.urls),
     # url('realestateobject/?daily=true',GetDailyRealEstateObjectAPIView.as_view()),
     url('realestateobject/', GetDataAPIView.as_view()),
-    url('regression/', GetResultRegression.as_view())
+    url('regression/', GetPrice.as_view())
 ]
