@@ -5,9 +5,9 @@ from rest_framework import status
 from crawler.models import RealEstate
 import turicreate as tc
 from math import log
-import numpy
+import numpy as np
 import json
-from crawler.serializers import GetAttributeRegression
+from crawler.serializers import GetAttributeRegression, GetAllRealEstateSerializer
 import os.path
 BASE = os.path.dirname(os.path.abspath(__file__))
 
@@ -15,19 +15,6 @@ class GetPrice(APIView):
 
     reo = tc.SFrame(BASE+'/data_sframe')
     model = tc.load_model(BASE+'/model_3')
-
-    def transform_value(self, value, field):
-        if (value == -1 or value == 0):
-            return self.reo[(self.reo[field] != -1) & (self.reo[field] != 0)][field].mean()
-        else:
-            return value
-    def getValueFromGet(self, request, field):
-        try:
-            value = float(request.GET[field])
-        except:
-            value = -1
-            value = self.transform_value(value, field)
-        return value
 
     def get(self, request):
         numberBedrooms = self.getValueFromGet(request, 'numberBedrooms')
@@ -83,3 +70,55 @@ class GetPrice(APIView):
 
     
         return Response(data=predictValue, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        price = self.getValueFromPost(request, 'price')
+        numberFloor = self.getValueFromPost(request, 'numberFloor')
+        codePost = self.getValueFromPost(request, 'codePost')
+        sizeFront = self.getValueFromPost(request, 'sizeFront')
+        wardin = self.getValueFromPost(request, 'wardin')
+        numberBedrooms = self.getValueFromPost(request, 'numberBedrooms')
+        numberToilets = self.getValueFromPost(request, 'numberToilets')
+        area = self.getValueFromPost(request, 'area')
+        longitude = self.getValueFromPost(request, 'longitude')
+        latitude = self.getValueFromPost(request, 'latitude')
+        test_object = {
+            'codePost': [int(codePost)],
+            'price': [int(price)],
+            'numberFloor': [int(numberFloor)],
+            'numberBedrooms' : [numberBedrooms],
+            'numberToilets': [numberToilets],
+            'area': [area],
+            'longitude':[longitude],
+            'latitude':[latitude],
+            'sizeFront':[sizeFront],
+            'wardin':[wardin]
+        }
+
+        sframe = tc.SFrame(test_object)
+        self.reo.append(sframe)
+        self.reo.save(BASE+'/data_sframe')
+
+        return Response(data="done", status=status.HTTP_200_OK)
+
+    
+    def transform_value(self, value, field):
+        if (value == -1 or value == 0):
+            return self.reo[(self.reo[field] != -1) & (self.reo[field] != 0)][field].mean()
+        else:
+            return value
+    def getValueFromGet(self, request, field):
+        try:
+            value = float(request.GET[field])
+        except:
+            value = -1
+            value = self.transform_value(value, field)
+        return value
+    def getValueFromPost(self, request, field):
+        try:
+            value = float(request.data[field])
+        except:
+            value = -1
+            value = self.transform_value(value, field)
+        return value
+    
