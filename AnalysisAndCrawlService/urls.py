@@ -16,11 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url,static
 # from django.urls import path
-from crawler.views import GetDataAPIView
-from predict.views import GetPrice
+from crawler.views import GetData
+from predict.views import PredictPrice
 urlpatterns = [
     url('admin/', admin.site.urls),
     # url('realestateobject/?daily=true',GetDailyRealEstateObjectAPIView.as_view()),
-    url('realestateobject/', GetDataAPIView.as_view()),
-    url('regression/', GetPrice.as_view())
+    url('crawler/', GetData.as_view()),
+    url('predictor/', PredictPrice.as_view())
 ]

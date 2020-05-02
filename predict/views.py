@@ -11,7 +11,7 @@ from crawler.serializers import GetAttributeRegression, GetAllRealEstateSerializ
 import os.path
 BASE = os.path.dirname(os.path.abspath(__file__))
 
-class GetPrice(APIView):
+class PredictPrice(APIView):
 
     reo = tc.SFrame(BASE+'/data_sframe')
     model = tc.load_model(BASE+'/model_3')
